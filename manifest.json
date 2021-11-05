@@ -1,0 +1,10 @@
+{
+  "name": "Gantt",
+  "id": "gantt",
+  "api": "1.0.0",
+  "main": "dist/code.js",
+  "ui": "dist/index.html",
+  "editorType": ["figjam"],
+  "containsWidget": true,
+  "widgetApi": "1.0.0"
+}
