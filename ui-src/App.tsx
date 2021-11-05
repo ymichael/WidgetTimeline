@@ -6,23 +6,43 @@ import Pikaday from "pikaday";
 function App() {
   const containerEl = useRef(null);
   useEffect(() => {
-    var picker = new Pikaday({
+    var fromPicker = new Pikaday({
       onSelect: function (date) {
         parent?.postMessage(
           {
             pluginMessage: {
-              type: window.propertyName,
-              dateStr: picker.toString(),
+              type: "from",
+              dateStr: new Date(fromPicker.toString()).toString(),
             },
           },
           "*"
         );
       },
     });
-    if (window.defaultDate) {
-      picker.setDate(window.defaultDate);
+    var toPicker = new Pikaday({
+      onSelect: function (date) {
+        parent?.postMessage(
+          {
+            pluginMessage: {
+              type: "to",
+              dateStr: new Date(toPicker.toString()).toString(),
+            },
+          },
+          "*"
+        );
+      },
+    });
+
+    if (window.defaultDateFrom) {
+      fromPicker.setDate(window.defaultDateFrom);
     }
-    containerEl.current.appendChild(picker.el);
+    if (window.defaultDateTo) {
+      toPicker.setDate(window.defaultDateTo);
+    }
+
+
+    containerEl.current.appendChild(fromPicker.el);
+    containerEl.current.appendChild(toPicker.el);
   }, []);
 
   return <div className="App" ref={containerEl}></div>;

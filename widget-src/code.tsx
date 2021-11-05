@@ -12,8 +12,8 @@ const {
 
 const DAY_WIDTH = 40;
 const WEEK_WIDTH = DAY_WIDTH * 7;
-const MONTH_FILL = "#FFC898";
-const WEEK_FILL = "#CDF2CA";
+const MONTH_FILL = "#9747ff";
+const WEEK_FILL = "#eadaff";
 
 const MONTH_IDX_TO_NAME = [
   "January",
@@ -31,6 +31,10 @@ const MONTH_IDX_TO_NAME = [
 ];
 
 function Month({ month, children }: { month: TMonth; children?: any }) {
+  let label = MONTH_IDX_TO_NAME[month.monthIdx]
+  if (month.numDays <= 7) {
+    label = label.slice(0, 3)
+  }
   return (
     <AutoLayout
       width={DAY_WIDTH * month.numDays}
@@ -45,8 +49,8 @@ function Month({ month, children }: { month: TMonth; children?: any }) {
         cornerRadius={10}
         fill={MONTH_FILL}
       >
-        <Text fontFamily="Inter" fontSize={42} fontWeight={500}>
-          {MONTH_IDX_TO_NAME[month.monthIdx]}
+        <Text fill="#FFF" fontFamily="Inter" fontSize={42} fontWeight={500}>
+          {label}
         </Text>
       </AutoLayout>
     </AutoLayout>
@@ -56,7 +60,7 @@ function Month({ month, children }: { month: TMonth; children?: any }) {
 function Week({ week }) {
   return (
     <AutoLayout
-      width={WEEK_WIDTH * (week.numDays / 7)}
+      width={DAY_WIDTH * week.numDays}
       padding={{ horizontal: 10 }}
       direction="vertical"
     >
@@ -68,7 +72,7 @@ function Week({ week }) {
         verticalAlignItems="center"
         horizontalAlignItems="center"
       >
-        <Text fontFamily="Inter" fontSize={26}>
+        <Text fontFamily="Inter" fontSize={32}>
           {week.fromStr} - {week.toStr}
         </Text>
       </AutoLayout>
@@ -94,7 +98,7 @@ function addDays(date: Date, days: number): Date {
 }
 
 function daysBetween(start: Date, end: Date): number {
-  return end.getDate() - start.getDate();
+  return end.getDate() - start.getDate() + 1;
 }
 
 function getDateStr(date: Date) {
@@ -123,8 +127,7 @@ function getMonthAndWeeks(from: Date, to: Date): [TMonth[], TWeek[]] {
       skipDays = daysBetween(start, end);
     }
     if (start.getMonth() !== end.getMonth()) {
-      currMonth.numDays += skipDays;
-      currMonth.numDays -= end.getDate();
+      currMonth.numDays += skipDays - end.getDate();
       retMonths.push(currMonth);
       currMonth = {
         monthIdx: end.getMonth(),
@@ -154,42 +157,44 @@ const today = new Date();
 const nextMonth = new Date();
 nextMonth.setMonth(today.getMonth() + 1);
 
-function Gantt() {
-  const [from, setFrom] = useSyncedState("from", today.toDateString());
-  const [to, setTo] = useSyncedState("to", nextMonth.toDateString());
+const dateTrunc = (x) => x.split(" ").slice(1, 4).join(" ")
+
+function Timeline() {
+  const [from, setFrom] = useSyncedState("from", today.toString());
+  const [to, setTo] = useSyncedState("to", nextMonth.toString());
+
   const fromDate = new Date(from);
   const toDate = new Date(to);
+
+  const showDatePicker = () => {
+    
+    return new Promise(
+      () => {
+        figma.showUI(`
+          <script>
+            window.defaultDateFrom = ${JSON.stringify(from)}
+            window.defaultDateTo = ${JSON.stringify(to)}
+          </script>
+          ${__html__}
+        `);
+      },
+      {
+        width: 516,
+        height: 300,
+      }
+    );
+  }
 
   usePropertyMenu(
     [
       {
         itemType: "action",
-        tooltip: `Start: ${from}`,
-        propertyName: "from",
-      },
-      {
-        itemType: "action",
-        tooltip: `End: ${to}`,
-        propertyName: "to",
+        tooltip: `${dateTrunc(from)} - ${dateTrunc(to)}`,
+        propertyName: "setRange",
       },
     ],
     ({ propertyName }) => {
-      const date = propertyName === "from" ? from : to;
-      return new Promise(
-        () => {
-          figma.showUI(`
-            <script>
-              window.propertyName = ${JSON.stringify(propertyName)}
-              window.defaultDate = ${JSON.stringify(date)}
-            </script>
-            ${__html__}
-          `);
-        },
-        {
-          height: 200,
-          width: 200,
-        }
-      );
+      return showDatePicker()
     }
   );
   useEffect(() => {
@@ -231,4 +236,4 @@ function Gantt() {
   );
 }
 
-widget.register(Gantt);
+widget.register(Timeline);

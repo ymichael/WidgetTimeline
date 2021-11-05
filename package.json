@@ -1,5 +1,5 @@
 {
-  "name": "WidgetGantt",
+  "name": "WidgetTimeline",
   "version": "1.0.0",
   "description": "Your Figma widget",
   "main": "code.js",
