@@ -109,7 +109,6 @@ function getMonthAndWeeks(from: Date, to: Date): [TMonth[], TWeek[]] {
 
   const toTime = to.getTime();
   let currMonth: TMonth = { monthIdx: from.getMonth(), numDays: 0 };
-
   while (from.getTime() < toTime) {
     if (currMonth.monthIdx !== from.getMonth()) {
       retMonths.push(currMonth);
@@ -123,14 +122,13 @@ function getMonthAndWeeks(from: Date, to: Date): [TMonth[], TWeek[]] {
       end = new Date(toTime);
       skipDays = daysBetween(start, end);
     }
-
     if (start.getMonth() !== end.getMonth()) {
       currMonth.numDays += skipDays;
       currMonth.numDays -= end.getDate();
       retMonths.push(currMonth);
       currMonth = {
         monthIdx: end.getMonth(),
-        numDays: end.getDate() + 1,
+        numDays: end.getDate(),
       };
     } else {
       currMonth.numDays += skipDays;
