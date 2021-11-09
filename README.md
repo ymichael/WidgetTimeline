@@ -1,36 +1,24 @@
-Below are the steps to get your widget running. You can also find instructions at:
+# Timeline FigJam Widget
 
-https://www.figma.com/widget-docs/setup-guide/
+![](https://www.figma.com/community/widget/1038507134198748761/thumbnail)
 
-This widget template uses Typescript and NPM, two standard tools in creating JavaScript applications.
+Install and use this widget here: https://www.figma.com/community/widget/1038507134198748761/Timeline
 
-First, download Node.js which comes with NPM. This will allow you to install TypeScript and other
-libraries. You can find the download link here:
+## Getting Started
 
-https://nodejs.org/en/download/
+Import this widget's manifest via the "Import widget from manifest" command in FigJam.
 
-Next, install TypeScript and the latest type definitions by running:
+Run the following commands in your shell:
 
-npm install
+```bash
+# install dependencies (you only need to do this once)
+npm ci
 
-If you are familiar with JavaScript, TypeScript will look very familiar. In fact, valid JavaScript code
-is already valid Typescript code.
+# build widget and iframe code
+npm run build:watch
+```
 
-TypeScript adds type annotations to variables. This allows code editors such as Visual Studio Code
-to provide information about the Figma API while you are writing code, as well as help catch bugs
-you previously didn't notice.
+## Appendix
 
-For more information, visit https://www.typescriptlang.org/
-
-Using TypeScript requires a compiler to convert TypeScript (code.ts) into JavaScript (code.js)
-for the browser to run.
-
-We recommend writing TypeScript code using Visual Studio code:
-
-1. Download Visual Studio Code if you haven't already: https://code.visualstudio.com/.
-2. Open this directory in Visual Studio Code.
-3. Compile TypeScript to JavaScript: Run the "Terminal > Run Build Task..." menu item,
-   then select "tsc: watch - tsconfig.json". You will have to do this again every time
-   you reopen Visual Studio Code.
-
-That's it! Visual Studio Code will regenerate the JavaScript file every time you save.
+Learn more about widgets here:
+https://www.figma.com/widget-docs
