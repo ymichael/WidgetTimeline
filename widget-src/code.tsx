@@ -12,8 +12,17 @@ const {
 
 const DAY_WIDTH = 40;
 const WEEK_WIDTH = DAY_WIDTH * 7;
-const MONTH_FILL = "#9747ff";
-const WEEK_FILL = "#eadaff";
+
+type TTheme = {
+  MONTH_FILL: string;
+  WEEK_FILL: string;
+};
+const THEMES: Record<string, TTheme> = {
+  Purple: { MONTH_FILL: "#9747ff", WEEK_FILL: "#eadaff" },
+  Red: { MONTH_FILL: "#FF4747", WEEK_FILL: "#FDC5C5" },
+  Green: { MONTH_FILL: "#36CE1D", WEEK_FILL: "#C5F2D2" },
+  Blue: { MONTH_FILL: "#3683C9", WEEK_FILL: "#D1E5F8" },
+};
 
 const MONTH_IDX_TO_NAME = [
   "January",
@@ -30,10 +39,19 @@ const MONTH_IDX_TO_NAME = [
   "December",
 ];
 
-function Month({ month, children }: { month: TMonth; children?: any }) {
-  let label = MONTH_IDX_TO_NAME[month.monthIdx]
+function Month({
+  month,
+  theme,
+  children,
+}: {
+  month: TMonth;
+  theme: TTheme;
+  children?: any;
+  key?: any;
+}) {
+  let label = MONTH_IDX_TO_NAME[month.monthIdx];
   if (month.numDays <= 7) {
-    label = label.slice(0, 3)
+    label = label.slice(0, 3);
   }
   return (
     <AutoLayout
@@ -47,7 +65,7 @@ function Month({ month, children }: { month: TMonth; children?: any }) {
         verticalAlignItems="center"
         padding={12}
         cornerRadius={10}
-        fill={MONTH_FILL}
+        fill={theme.MONTH_FILL}
       >
         <Text fill="#FFF" fontFamily="Inter" fontSize={42} fontWeight={500}>
           {label}
@@ -57,7 +75,7 @@ function Month({ month, children }: { month: TMonth; children?: any }) {
   );
 }
 
-function Week({ week }) {
+function Week({ week, theme }: { week: TWeek; theme: TTheme; key?: any }) {
   return (
     <AutoLayout
       width={DAY_WIDTH * week.numDays}
@@ -66,7 +84,7 @@ function Week({ week }) {
     >
       <AutoLayout
         width="fill-parent"
-        fill={WEEK_FILL}
+        fill={theme.WEEK_FILL}
         cornerRadius={10}
         padding={15}
         verticalAlignItems="center"
@@ -157,44 +175,62 @@ const today = new Date();
 const nextMonth = new Date();
 nextMonth.setMonth(today.getMonth() + 1);
 
-const dateTrunc = (x) => x.split(" ").slice(1, 4).join(" ")
+const dateTrunc = (x) => x.split(" ").slice(1, 4).join(" ");
 
 function Timeline() {
+  const [theme, setTheme] = useSyncedState<TTheme>("theme", THEMES["Purple"]);
   const [from, setFrom] = useSyncedState("from", today.toString());
   const [to, setTo] = useSyncedState("to", nextMonth.toString());
 
   const fromDate = new Date(from);
   const toDate = new Date(to);
 
-  const showDatePicker = () => {
-    
-    return new Promise(
-      () => {
-        figma.showUI(`
+  const showDatePicker = (): Promise<void> => {
+    return new Promise(() => {
+      figma.showUI(
+        `
           <script>
             window.defaultDateFrom = ${JSON.stringify(from)}
             window.defaultDateTo = ${JSON.stringify(to)}
           </script>
           ${__html__}
-        `);
-      },
-      {
-        width: 516,
-        height: 300,
-      }
-    );
-  }
+        `,
+        {
+          width: 516,
+          height: 300,
+        }
+      );
+    });
+  };
 
   usePropertyMenu(
     [
+      {
+        itemType: "color-selector",
+        tooltip: "Theme",
+        propertyName: "setTheme",
+        selectedOption: theme.MONTH_FILL,
+        options: Object.entries(THEMES).map(([k, v]) => {
+          return { option: v.MONTH_FILL, tooltip: k };
+        }),
+      },
       {
         itemType: "action",
         tooltip: `${dateTrunc(from)} - ${dateTrunc(to)}`,
         propertyName: "setRange",
       },
     ],
-    ({ propertyName }) => {
-      return showDatePicker()
+    ({ propertyName, propertyValue }) => {
+      if (propertyName === "setRange") {
+        return showDatePicker();
+      } else if (propertyName === "setTheme") {
+        const selectedTheme = Object.values(THEMES).find((v) => {
+          return v.MONTH_FILL === propertyValue;
+        });
+        if (selectedTheme) {
+          setTheme(selectedTheme);
+        }
+      }
     }
   );
   useEffect(() => {
@@ -224,12 +260,12 @@ function Timeline() {
     <AutoLayout direction="vertical" spacing={10}>
       <AutoLayout direction="horizontal" padding={0} spacing={0}>
         {months.map((month) => {
-          return <Month key={month.monthIdx} month={month} />;
+          return <Month key={month.monthIdx} month={month} theme={theme} />;
         })}
       </AutoLayout>
       <AutoLayout direction="horizontal" padding={0} spacing={0}>
         {weeks.map((week, idx) => {
-          return <Week key={idx} week={week} />;
+          return <Week key={idx} week={week} theme={theme} />;
         })}
       </AutoLayout>
     </AutoLayout>
