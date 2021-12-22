@@ -10,13 +10,43 @@ const {
   usePropertyMenu,
 } = widget;
 
-const DAY_WIDTH = 40;
-const WEEK_WIDTH = DAY_WIDTH * 7;
-
 type TTheme = {
   MONTH_FILL: string;
   WEEK_FILL: string;
 };
+
+type TSize = {
+  DAY_WIDTH: number;
+  SPACING: number;
+  PADDING: number;
+  FONT_SIZE_WEEK: number;
+  FONT_SIZE_MONTH: number;
+};
+
+const SIZE_MAP: Record<string, TSize> = {
+  small: {
+    DAY_WIDTH: 40,
+    SPACING: 10,
+    PADDING: 15,
+    FONT_SIZE_MONTH: 42,
+    FONT_SIZE_WEEK: 32,
+  },
+  medium: {
+    DAY_WIDTH: 80,
+    SPACING: 15,
+    PADDING: 20,
+    FONT_SIZE_MONTH: 62,
+    FONT_SIZE_WEEK: 52,
+  },
+  large: {
+    DAY_WIDTH: 120,
+    SPACING: 20,
+    PADDING: 30,
+    FONT_SIZE_MONTH: 82,
+    FONT_SIZE_WEEK: 72,
+  },
+};
+
 const THEMES: Record<string, TTheme> = {
   Purple: { MONTH_FILL: "#9747ff", WEEK_FILL: "#eadaff" },
   Red: { MONTH_FILL: "#FF4747", WEEK_FILL: "#FDC5C5" },
@@ -42,10 +72,12 @@ const MONTH_IDX_TO_NAME = [
 function Month({
   month,
   theme,
+  size,
   children,
 }: {
   month: TMonth;
   theme: TTheme;
+  size: TSize;
   children?: any;
   key?: any;
 }) {
@@ -55,19 +87,24 @@ function Month({
   }
   return (
     <AutoLayout
-      width={DAY_WIDTH * month.numDays}
+      width={size.DAY_WIDTH * month.numDays}
       direction="vertical"
-      padding={{ horizontal: 10 }}
+      padding={{ horizontal: size.SPACING }}
     >
       <AutoLayout
         width="fill-parent"
         horizontalAlignItems="center"
         verticalAlignItems="center"
-        padding={12}
+        padding={size.PADDING}
         cornerRadius={10}
         fill={theme.MONTH_FILL}
       >
-        <Text fill="#FFF" fontFamily="Inter" fontSize={42} fontWeight={500}>
+        <Text
+          fill="#FFF"
+          fontFamily="Inter"
+          fontSize={size.FONT_SIZE_MONTH}
+          fontWeight={500}
+        >
           {label}
         </Text>
       </AutoLayout>
@@ -75,22 +112,31 @@ function Month({
   );
 }
 
-function Week({ week, theme }: { week: TWeek; theme: TTheme; key?: any }) {
+function Week({
+  week,
+  size,
+  theme,
+}: {
+  week: TWeek;
+  size: TSize;
+  theme: TTheme;
+  key?: any;
+}) {
   return (
     <AutoLayout
-      width={DAY_WIDTH * week.numDays}
-      padding={{ horizontal: 10 }}
+      width={size.DAY_WIDTH * week.numDays}
+      padding={{ horizontal: size.SPACING }}
       direction="vertical"
     >
       <AutoLayout
         width="fill-parent"
         fill={theme.WEEK_FILL}
         cornerRadius={10}
-        padding={15}
+        padding={size.PADDING}
         verticalAlignItems="center"
         horizontalAlignItems="center"
       >
-        <Text fontFamily="Inter" fontSize={32}>
+        <Text fontFamily="Inter" fontSize={size.FONT_SIZE_WEEK}>
           {week.fromStr} - {week.toStr}
         </Text>
       </AutoLayout>
@@ -179,6 +225,7 @@ const dateTrunc = (x) => x.split(" ").slice(1, 4).join(" ");
 
 function Timeline() {
   const [theme, setTheme] = useSyncedState<TTheme>("theme", THEMES["Purple"]);
+  const [sizeKey, setSizeKey] = useSyncedState<string>("sizeKey", "small");
   const [from, setFrom] = useSyncedState("from", today.toString());
   const [to, setTo] = useSyncedState("to", nextMonth.toString());
 
@@ -215,6 +262,17 @@ function Timeline() {
         }),
       },
       {
+        itemType: "dropdown",
+        tooltip: "Size",
+        propertyName: "setSize",
+        selectedOption: sizeKey,
+        options: Object.keys(SIZE_MAP).map((k) => {
+          const label = k[0].toUpperCase() + k.slice(1);
+          return { option: k, label };
+        }),
+      },
+      { itemType: "separator" },
+      {
         itemType: "action",
         tooltip: `${dateTrunc(from)} - ${dateTrunc(to)}`,
         propertyName: "setRange",
@@ -223,6 +281,10 @@ function Timeline() {
     ({ propertyName, propertyValue }) => {
       if (propertyName === "setRange") {
         return showDatePicker();
+      } else if (propertyName === "setSize") {
+        if (SIZE_MAP[propertyValue]) {
+          setSizeKey(propertyValue);
+        }
       } else if (propertyName === "setTheme") {
         const selectedTheme = Object.values(THEMES).find((v) => {
           return v.MONTH_FILL === propertyValue;
@@ -254,18 +316,25 @@ function Timeline() {
       }
     };
   });
-
   const [months, weeks] = getMonthAndWeeks(fromDate, toDate);
+  const size = SIZE_MAP[sizeKey] || SIZE_MAP["small"];
   return (
-    <AutoLayout direction="vertical" spacing={10}>
+    <AutoLayout direction="vertical" spacing={size.SPACING}>
       <AutoLayout direction="horizontal" padding={0} spacing={0}>
         {months.map((month) => {
-          return <Month key={month.monthIdx} month={month} theme={theme} />;
+          return (
+            <Month
+              key={month.monthIdx}
+              month={month}
+              size={size}
+              theme={theme}
+            />
+          );
         })}
       </AutoLayout>
       <AutoLayout direction="horizontal" padding={0} spacing={0}>
         {weeks.map((week, idx) => {
-          return <Week key={idx} week={week} theme={theme} />;
+          return <Week key={idx} week={week} theme={theme} size={size} />;
         })}
       </AutoLayout>
     </AutoLayout>
