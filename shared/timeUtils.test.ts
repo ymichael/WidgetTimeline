@@ -63,4 +63,20 @@ test("multi-month", () => {
       { fromStr: "05/30", toStr: "06/02", numDays: 4 },
     ],
   ]);
+  expect(
+    getMonthAndWeeks(new Date("2021-01-02"), new Date("2021-02-02"))
+  ).toEqual([
+    [
+      { monthIdx: 0, numDays: 30 },
+      { monthIdx: 1, numDays: 2 },
+    ],
+    [
+      { fromStr: "01/02", toStr: "01/02", numDays: 1 },
+      { fromStr: "01/03", toStr: "01/09", numDays: 7 },
+      { fromStr: "01/10", toStr: "01/16", numDays: 7 },
+      { fromStr: "01/17", toStr: "01/23", numDays: 7 },
+      { fromStr: "01/24", toStr: "01/30", numDays: 7 },
+      { fromStr: "01/31", toStr: "02/02", numDays: 3 },
+    ],
+  ]);
 });
