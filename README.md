@@ -15,7 +15,7 @@ Run the following commands in your shell:
 npm ci
 
 # build widget and iframe code
-npm run build:watch
+npm run dev
 ```
 
 ## Appendix
