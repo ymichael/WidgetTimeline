@@ -1,3 +1,5 @@
+import { TMonth, TWeek, getMonthAndWeeks } from "../shared/timeUtils"
+
 const { widget } = figma;
 const {
   AutoLayout,
@@ -142,79 +144,6 @@ function Week({
       </AutoLayout>
     </AutoLayout>
   );
-}
-
-type TMonth = {
-  monthIdx: number;
-  numDays: number;
-};
-
-type TWeek = {
-  fromStr: string;
-  toStr: string;
-  numDays: number;
-};
-
-function addDays(date: Date, days: number): Date {
-  var result = new Date(date);
-  result.setDate(result.getDate() + days);
-  return result;
-}
-
-function daysBetween(start: Date, end: Date): number {
-  return end.getDate() - start.getDate() + 1;
-}
-
-function getDateStr(date: Date) {
-  const month = (1 + date.getMonth()).toString().padStart(2, "0");
-  const day = date.getDate().toString().padStart(2, "0");
-  return month + "/" + day;
-}
-
-function getMonthAndWeeks(from: Date, to: Date): [TMonth[], TWeek[]] {
-  const retMonths = [];
-  const retWeeks = [];
-
-  const toTime = to.getTime();
-  let currMonth: TMonth = { monthIdx: from.getMonth(), numDays: 0 };
-  while (from.getTime() < toTime) {
-    if (currMonth.monthIdx !== from.getMonth()) {
-      retMonths.push(currMonth);
-      currMonth = { monthIdx: from.getMonth(), numDays: 0 };
-    }
-
-    let skipDays = 7 - from.getDay();
-    const start = from;
-    let end = addDays(from, skipDays - 1);
-    if (end.getTime() > toTime) {
-      end = new Date(toTime);
-      skipDays = daysBetween(start, end);
-    }
-    if (start.getMonth() !== end.getMonth()) {
-      currMonth.numDays += skipDays - end.getDate();
-      retMonths.push(currMonth);
-      currMonth = {
-        monthIdx: end.getMonth(),
-        numDays: end.getDate(),
-      };
-    } else {
-      currMonth.numDays += skipDays;
-    }
-
-    retWeeks.push({
-      fromStr: getDateStr(from),
-      toStr: getDateStr(end),
-      numDays: end.getDay() - from.getDay() + 1,
-    });
-
-    from = addDays(from, skipDays);
-  }
-
-  if (currMonth.numDays !== 0) {
-    retMonths.push(currMonth);
-  }
-
-  return [retMonths, retWeeks];
 }
 
 const today = new Date();
