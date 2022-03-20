@@ -48,10 +48,16 @@ const SIZE_MAP: Record<string, TSize> = {
 };
 
 const THEMES: Record<string, TTheme> = {
-  Purple: { MONTH_FILL: "#9747ff", WEEK_FILL: "#eadaff" },
+  Orange: { MONTH_FILL: "#FAAB13", WEEK_FILL: "#FFEDCA" },
+  Pink: { MONTH_FILL: "#FF70F9", WEEK_FILL: "#FFBBFC" },
   Red: { MONTH_FILL: "#FF4747", WEEK_FILL: "#FDC5C5" },
+  Teal: { MONTH_FILL: "#29D3A0", WEEK_FILL: "#B9FFEA" },
   Green: { MONTH_FILL: "#36CE1D", WEEK_FILL: "#C5F2D2" },
+  Olive: { MONTH_FILL: "#00700B", WEEK_FILL: "#98D69E" },
   Blue: { MONTH_FILL: "#3683C9", WEEK_FILL: "#D1E5F8" },
+  Navy: { MONTH_FILL: "#0012B8", WEEK_FILL: "#A0A7E4" },
+  Purple: { MONTH_FILL: "#9747ff", WEEK_FILL: "#eadaff" },
+  Black: { MONTH_FILL: "#2A2A2A", WEEK_FILL: "#CCCCCC" },
 };
 
 const MONTH_IDX_TO_NAME = [
