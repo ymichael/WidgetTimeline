@@ -79,11 +79,13 @@ function Month({
   month,
   theme,
   size,
+  large,
   children,
 }: {
   month: TMonth;
   theme: TTheme;
   size: TSize;
+  large: boolean;
   children?: any;
   key?: any;
 }) {
@@ -108,7 +110,7 @@ function Month({
         <Text
           fill="#FFF"
           fontFamily="Inter"
-          fontSize={size.FONT_SIZE_MONTH}
+          fontSize={large ? size.FONT_SIZE_MONTH * 2 : size.FONT_SIZE_MONTH}
           fontWeight={500}
         >
           {label}
@@ -234,6 +236,7 @@ function Timeline() {
   const [sizeKey, setSizeKey] = useSyncedState<string>("sizeKey", "small");
   const [from, setFrom] = useSyncedState("from", today.toString());
   const [to, setTo] = useSyncedState("to", nextMonth.toString());
+  const [showWeeks, setShowWeeks] = useSyncedState("showWeeks", true);
 
   const fromDate = new Date(from);
   const toDate = new Date(to);
@@ -280,6 +283,12 @@ function Timeline() {
       { itemType: "separator" },
       {
         itemType: "action",
+        tooltip: showWeeks ? "Hide Weeks" : "Show Weeks",
+        propertyName: "toggleShowWeeks",
+      },
+      { itemType: "separator" },
+      {
+        itemType: "action",
         tooltip: `${dateTrunc(from)} - ${dateTrunc(to)}`,
         propertyName: "setRange",
       },
@@ -291,6 +300,8 @@ function Timeline() {
         if (SIZE_MAP[propertyValue]) {
           setSizeKey(propertyValue);
         }
+      } else if (propertyName === "toggleShowWeeks") {
+        setShowWeeks(!showWeeks);
       } else if (propertyName === "setTheme") {
         const selectedTheme = Object.values(THEMES).find((v) => {
           return v.MONTH_FILL === propertyValue;
@@ -333,16 +344,19 @@ function Timeline() {
               key={month.monthIdx}
               month={month}
               size={size}
+              large={!showWeeks}
               theme={theme}
             />
           );
         })}
       </AutoLayout>
-      <AutoLayout direction="horizontal" padding={0} spacing={0}>
-        {weeks.map((week, idx) => {
-          return <Week key={idx} week={week} theme={theme} size={size} />;
-        })}
-      </AutoLayout>
+      {showWeeks && (
+        <AutoLayout direction="horizontal" padding={0} spacing={0}>
+          {weeks.map((week, idx) => {
+            return <Week key={idx} week={week} theme={theme} size={size} />;
+          })}
+        </AutoLayout>
+      )}
     </AutoLayout>
   );
 }
