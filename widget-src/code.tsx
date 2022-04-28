@@ -1,4 +1,9 @@
-import { TMonth, TWeek, getMonthAndWeeks } from "../shared/timeUtils"
+import {
+  TMonth,
+  TWeek,
+  TDateFormat,
+  getMonthAndWeeks,
+} from "../shared/timeUtils";
 
 const { widget } = figma;
 const {
@@ -162,6 +167,10 @@ const dateTrunc = (x) => x.split(" ").slice(1, 4).join(" ");
 
 function Timeline() {
   const [theme, setTheme] = useSyncedState<TTheme>("theme", THEMES["Purple"]);
+  const [dateFormat, setDateFormat] = useSyncedState<TDateFormat>(
+    "dateFormat",
+    "MM/DD"
+  );
   const [sizeKey, setSizeKey] = useSyncedState<string>("sizeKey", "small");
   const [from, setFrom] = useSyncedState("from", today.toString());
   const [to, setTo] = useSyncedState("to", nextMonth.toString());
@@ -211,6 +220,17 @@ function Timeline() {
       },
       { itemType: "separator" },
       {
+        itemType: "dropdown",
+        tooltip: "Date Format",
+        propertyName: "setDateFormat",
+        selectedOption: dateFormat,
+        options: [
+          { option: "MM/DD", label: "MM/DD" },
+          { option: "DD/MM", label: "DD/MM" },
+        ],
+      },
+      { itemType: "separator" },
+      {
         itemType: "action",
         tooltip: showWeeks ? "Hide Weeks" : "Show Weeks",
         propertyName: "toggleShowWeeks",
@@ -225,6 +245,10 @@ function Timeline() {
     ({ propertyName, propertyValue }) => {
       if (propertyName === "setRange") {
         return showDatePicker();
+      } else if (propertyName === "setDateFormat") {
+        if (propertyValue === "MM/DD" || propertyValue === "DD/MM") {
+          setDateFormat(propertyValue);
+        }
       } else if (propertyName === "setSize") {
         if (SIZE_MAP[propertyValue]) {
           setSizeKey(propertyValue);
@@ -262,7 +286,7 @@ function Timeline() {
       }
     };
   });
-  const [months, weeks] = getMonthAndWeeks(fromDate, toDate);
+  const [months, weeks] = getMonthAndWeeks(fromDate, toDate, dateFormat);
   const size = SIZE_MAP[sizeKey] || SIZE_MAP["small"];
   return (
     <AutoLayout direction="vertical" spacing={size.SPACING}>

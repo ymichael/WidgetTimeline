@@ -80,3 +80,18 @@ test("multi-month", () => {
     ],
   ]);
 });
+
+test("multi-month (dd/mm)", () => {
+  expect(
+    getMonthAndWeeks(new Date("2021-05-29"), new Date("2021-06-02"), "DD/MM")
+  ).toEqual([
+    [
+      { monthIdx: 4, numDays: 3 },
+      { monthIdx: 5, numDays: 2 },
+    ],
+    [
+      { fromStr: "29/05", toStr: "29/05", numDays: 1 },
+      { fromStr: "30/05", toStr: "02/06", numDays: 4 },
+    ],
+  ]);
+});

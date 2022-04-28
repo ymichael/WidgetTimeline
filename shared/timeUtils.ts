@@ -1,3 +1,5 @@
+export type TDateFormat = "DD/MM" | "MM/DD";
+
 export type TMonth = {
   monthIdx: number;
   numDays: number;
@@ -21,19 +23,27 @@ function daysBetween(start: Date, end: Date): number {
   return diffDays;
 }
 
-function getDateStr(date: Date) {
+function getDateStr(date: Date, dateFormat: TDateFormat) {
   const month = (1 + date.getUTCMonth()).toString().padStart(2, "0");
   const day = date.getUTCDate().toString().padStart(2, "0");
-  return month + "/" + day;
+  if (dateFormat === "DD/MM") {
+    return day + "/" + month;
+  } else {
+    return month + "/" + day;
+  }
 }
 
-export function getMonthAndWeeks(from: Date, to: Date): [TMonth[], TWeek[]] {
+export function getMonthAndWeeks(
+  from: Date,
+  to: Date,
+  dateFormat: TDateFormat = "MM/DD"
+): [TMonth[], TWeek[]] {
   const retMonths = [];
   const retWeeks = [];
 
   const toTime = to.getTime();
   let currMonth: TMonth = { monthIdx: from.getUTCMonth(), numDays: 0 };
-  
+
   while (from.getTime() <= toTime) {
     if (currMonth.monthIdx !== from.getUTCMonth()) {
       retMonths.push(currMonth);
@@ -59,8 +69,8 @@ export function getMonthAndWeeks(from: Date, to: Date): [TMonth[], TWeek[]] {
     }
 
     retWeeks.push({
-      fromStr: getDateStr(from),
-      toStr: getDateStr(end),
+      fromStr: getDateStr(from, dateFormat),
+      toStr: getDateStr(end, dateFormat),
       numDays: skipDays,
     });
 
