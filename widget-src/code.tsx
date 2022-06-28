@@ -2,6 +2,7 @@ import {
   TMonth,
   TWeek,
   TDateFormat,
+  TWeekFormat,
   getMonthAndWeeks,
 } from "../shared/timeUtils";
 
@@ -24,6 +25,7 @@ type TTheme = {
 
 type TSize = {
   DAY_WIDTH: number;
+  DAY_MON_TO_FRI_WIDTH: number;
   SPACING: number;
   PADDING: number;
   FONT_SIZE_WEEK: number;
@@ -33,6 +35,7 @@ type TSize = {
 const SIZE_MAP: Record<string, TSize> = {
   small: {
     DAY_WIDTH: 40,
+    DAY_MON_TO_FRI_WIDTH: 56,
     SPACING: 10,
     PADDING: 15,
     FONT_SIZE_MONTH: 42,
@@ -40,6 +43,7 @@ const SIZE_MAP: Record<string, TSize> = {
   },
   medium: {
     DAY_WIDTH: 80,
+    DAY_MON_TO_FRI_WIDTH: 112,
     SPACING: 15,
     PADDING: 20,
     FONT_SIZE_MONTH: 62,
@@ -47,6 +51,7 @@ const SIZE_MAP: Record<string, TSize> = {
   },
   large: {
     DAY_WIDTH: 120,
+    DAY_MON_TO_FRI_WIDTH: 168,
     SPACING: 20,
     PADDING: 30,
     FONT_SIZE_MONTH: 82,
@@ -88,9 +93,11 @@ function Month({
   size,
   large,
   children,
+  weekFormat,
 }: {
   month: TMonth;
   theme: TTheme;
+  weekFormat: TWeekFormat;
   size: TSize;
   large: boolean;
   children?: any;
@@ -102,7 +109,11 @@ function Month({
   }
   return (
     <AutoLayout
-      width={size.DAY_WIDTH * month.numDays}
+      width={
+        (weekFormat === "MON_TO_FRI"
+          ? size.DAY_MON_TO_FRI_WIDTH
+          : size.DAY_WIDTH) * month.numDays
+      }
       direction="vertical"
       padding={{ horizontal: size.SPACING }}
     >
@@ -131,15 +142,21 @@ function Week({
   week,
   size,
   theme,
+  weekFormat,
 }: {
   week: TWeek;
   size: TSize;
   theme: TTheme;
+  weekFormat: TWeekFormat;
   key?: any;
 }) {
   return (
     <AutoLayout
-      width={size.DAY_WIDTH * week.numDays}
+      width={
+        (weekFormat === "MON_TO_FRI"
+          ? size.DAY_MON_TO_FRI_WIDTH
+          : size.DAY_WIDTH) * week.numDays
+      }
       padding={{ horizontal: size.SPACING }}
       direction="vertical"
     >
@@ -170,6 +187,10 @@ function Timeline() {
   const [dateFormat, setDateFormat] = useSyncedState<TDateFormat>(
     "dateFormat",
     "MM/DD"
+  );
+  const [weekFormat, setWeekFormat] = useSyncedState<TWeekFormat>(
+    "weekFormat",
+    "SUN_TO_MON"
   );
   const [sizeKey, setSizeKey] = useSyncedState<string>("sizeKey", "small");
   const [from, setFrom] = useSyncedState("from", today.toString());
@@ -231,6 +252,18 @@ function Timeline() {
       },
       { itemType: "separator" },
       {
+        itemType: "dropdown",
+        tooltip: "Week Format",
+        propertyName: "setWeekFormat",
+        selectedOption: weekFormat,
+        options: [
+          { option: "SUN_TO_MON", label: "Sun - Mon" },
+          { option: "MON_TO_SUN", label: "Mon - Sun" },
+          { option: "MON_TO_FRI", label: "Mon - Fri" },
+        ],
+      },
+      { itemType: "separator" },
+      {
         itemType: "action",
         tooltip: showWeeks ? "Hide Weeks" : "Show Weeks",
         propertyName: "toggleShowWeeks",
@@ -245,6 +278,14 @@ function Timeline() {
     ({ propertyName, propertyValue }) => {
       if (propertyName === "setRange") {
         return showDatePicker();
+      } else if (propertyName === "setWeekFormat") {
+        if (
+          propertyValue === "MON_TO_SUN" ||
+          propertyValue === "SUN_TO_MON" ||
+          propertyValue === "MON_TO_FRI"
+        ) {
+          setWeekFormat(propertyValue);
+        }
       } else if (propertyName === "setDateFormat") {
         if (propertyValue === "MM/DD" || propertyValue === "DD/MM") {
           setDateFormat(propertyValue);
@@ -286,7 +327,12 @@ function Timeline() {
       }
     };
   });
-  const [months, weeks] = getMonthAndWeeks(fromDate, toDate, dateFormat);
+  const [months, weeks] = getMonthAndWeeks(
+    fromDate,
+    toDate,
+    dateFormat,
+    weekFormat
+  );
   const size = SIZE_MAP[sizeKey] || SIZE_MAP["small"];
   return (
     <AutoLayout direction="vertical" spacing={size.SPACING}>
@@ -299,6 +345,7 @@ function Timeline() {
               size={size}
               large={!showWeeks}
               theme={theme}
+              weekFormat={weekFormat}
             />
           );
         })}
@@ -306,7 +353,15 @@ function Timeline() {
       {showWeeks && (
         <AutoLayout direction="horizontal" padding={0} spacing={0}>
           {weeks.map((week, idx) => {
-            return <Week key={idx} week={week} theme={theme} size={size} />;
+            return (
+              <Week
+                key={idx}
+                week={week}
+                theme={theme}
+                size={size}
+                weekFormat={weekFormat}
+              />
+            );
           })}
         </AutoLayout>
       )}

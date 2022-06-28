@@ -1,5 +1,7 @@
 export type TDateFormat = "DD/MM" | "MM/DD";
 
+export type TWeekFormat = "MON_TO_SUN" | "SUN_TO_MON" | "MON_TO_FRI";
+
 export type TMonth = {
   monthIdx: number;
   numDays: number;
@@ -33,10 +35,21 @@ function getDateStr(date: Date, dateFormat: TDateFormat) {
   }
 }
 
+function getSkipDays(day: number, weekFormat: TWeekFormat): number {
+  switch (weekFormat) {
+    case "SUN_TO_MON":
+      return 7 - day;
+    case "MON_TO_FRI":
+    case "MON_TO_SUN":
+      return day === 0 ? 1 : 8 - day;
+  }
+}
+
 export function getMonthAndWeeks(
   from: Date,
   to: Date,
-  dateFormat: TDateFormat = "MM/DD"
+  dateFormat: TDateFormat = "MM/DD",
+  weekFormat: TWeekFormat = "SUN_TO_MON"
 ): [TMonth[], TWeek[]] {
   const retMonths = [];
   const retWeeks = [];
@@ -45,21 +58,47 @@ export function getMonthAndWeeks(
   let currMonth: TMonth = { monthIdx: from.getUTCMonth(), numDays: 0 };
 
   while (from.getTime() <= toTime) {
+    let skipDays = getSkipDays(from.getUTCDay(), weekFormat);
+    if (
+      weekFormat === "MON_TO_FRI" &&
+      skipDays < 3 &&
+      (from.getUTCDay() === 0 || from.getUTCDay() === 6)
+    ) {
+      from = addDays(from, skipDays);
+      continue;
+    }
+
     if (currMonth.monthIdx !== from.getUTCMonth()) {
-      retMonths.push(currMonth);
+      if (currMonth.numDays > 0) {
+        retMonths.push(currMonth);
+      }
       currMonth = { monthIdx: from.getUTCMonth(), numDays: 0 };
     }
 
-    let skipDays = 7 - from.getUTCDay();
     const start = from;
-    let end = addDays(start, skipDays - 1);
+    let end =
+      weekFormat === "MON_TO_FRI"
+        ? addDays(start, skipDays - 3)
+        : addDays(start, skipDays - 1);
+
     if (end.getTime() > toTime) {
       end = to;
-      skipDays = daysBetween(start, end) + 1;
+      while (
+        weekFormat === "MON_TO_FRI" &&
+        (end.getUTCDay() === 6 || end.getUTCDay() === 0)
+      ) {
+        end = addDays(end, -1);
+      }
     }
+
+    const skipTo = addDays(from, skipDays);
+    skipDays = daysBetween(start, end) + 1;
+
     if (start.getUTCMonth() !== end.getUTCMonth()) {
       currMonth.numDays += skipDays - end.getUTCDate();
-      retMonths.push(currMonth);
+      if (currMonth.numDays > 0) {
+        retMonths.push(currMonth);
+      }
       currMonth = {
         monthIdx: end.getUTCMonth(),
         numDays: end.getUTCDate(),
@@ -74,7 +113,7 @@ export function getMonthAndWeeks(
       numDays: skipDays,
     });
 
-    from = addDays(from, skipDays);
+    from = skipTo;
   }
 
   if (currMonth.numDays !== 0) {
