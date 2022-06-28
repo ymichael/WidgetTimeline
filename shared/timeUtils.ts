@@ -1,6 +1,10 @@
 export type TDateFormat = "DD/MM" | "MM/DD";
 
-export type TWeekFormat = "MON_TO_SUN" | "SUN_TO_MON" | "MON_TO_FRI";
+export type TWeekFormat =
+  | "MON_TO_SUN"
+  | "SUN_TO_MON" // deprecated
+  | "MON_TO_FRI"
+  | "SUN_TO_SAT";
 
 export type TMonth = {
   monthIdx: number;
@@ -38,6 +42,7 @@ function getDateStr(date: Date, dateFormat: TDateFormat) {
 function getSkipDays(day: number, weekFormat: TWeekFormat): number {
   switch (weekFormat) {
     case "SUN_TO_MON":
+    case "SUN_TO_SAT":
       return 7 - day;
     case "MON_TO_FRI":
     case "MON_TO_SUN":

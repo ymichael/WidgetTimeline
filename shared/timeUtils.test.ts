@@ -96,13 +96,13 @@ test("multi-month (dd/mm)", () => {
   ]);
 });
 
-test("multi-month (SUN_TO_MON)", () => {
+test("multi-month (SUN_TO_SAT)", () => {
   expect(
     getMonthAndWeeks(
       new Date("2022-05-01"),
       new Date("2022-06-30"),
       "DD/MM",
-      "SUN_TO_MON"
+      "SUN_TO_SAT"
     )
   ).toEqual([
     [

@@ -257,7 +257,7 @@ function Timeline() {
         propertyName: "setWeekFormat",
         selectedOption: weekFormat,
         options: [
-          { option: "SUN_TO_MON", label: "Sun - Sat" },
+          { option: "SUN_TO_SAT", label: "Sun - Sat" },
           { option: "MON_TO_SUN", label: "Mon - Sun" },
           { option: "MON_TO_FRI", label: "Mon - Fri" },
         ],
