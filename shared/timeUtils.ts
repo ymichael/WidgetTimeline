@@ -54,7 +54,7 @@ export function getMonthAndWeeks(
   from: Date,
   to: Date,
   dateFormat: TDateFormat = "MM/DD",
-  weekFormat: TWeekFormat = "SUN_TO_MON"
+  weekFormat: TWeekFormat = "SUN_TO_SAT"
 ): [TMonth[], TWeek[]] {
   const retMonths = [];
   const retWeeks = [];

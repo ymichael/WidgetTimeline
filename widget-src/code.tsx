@@ -197,7 +197,7 @@ function Timeline() {
   );
   const [weekFormat, setWeekFormat] = useSyncedState<TWeekFormat>(
     "weekFormat",
-    "SUN_TO_MON"
+    "SUN_TO_SAT"
   );
   const [sizeKey, setSizeKey] = useSyncedState<string>("sizeKey", "small");
   const [from, setFrom] = useSyncedState("from", today.toString());
@@ -288,6 +288,7 @@ function Timeline() {
         if (
           propertyValue === "MON_TO_SUN" ||
           propertyValue === "SUN_TO_MON" ||
+          propertyValue === "SUN_TO_SAT" ||
           propertyValue === "MON_TO_FRI"
         ) {
           setWeekFormat(propertyValue);
