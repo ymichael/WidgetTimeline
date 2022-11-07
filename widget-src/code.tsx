@@ -176,6 +176,13 @@ function Week({
   );
 }
 
+const weekFormatToLabel: Record<TWeekFormat, string> = {
+  SUN_TO_SAT: "Sun - Sat",
+  SUN_TO_MON: "Sun - Sat",
+  MON_TO_SUN: "Mon - Sun",
+  MON_TO_FRI: "Mon - Fri",
+};
+
 const today = new Date();
 const nextMonth = new Date();
 nextMonth.setMonth(today.getMonth() + 1);
@@ -255,12 +262,11 @@ function Timeline() {
         itemType: "dropdown",
         tooltip: "Week Format",
         propertyName: "setWeekFormat",
-        selectedOption: weekFormat,
-        options: [
-          { option: "SUN_TO_SAT", label: "Sun - Sat" },
-          { option: "MON_TO_SUN", label: "Mon - Sun" },
-          { option: "MON_TO_FRI", label: "Mon - Fri" },
-        ],
+        selectedOption: weekFormatToLabel[weekFormat] ?? weekFormat,
+        options: ["SUN_TO_SAT", "MON_TO_SUN", "MON_TO_FRI"].map((format) => ({
+          option: format,
+          label: weekFormatToLabel[format],
+        })),
       },
       { itemType: "separator" },
       {
