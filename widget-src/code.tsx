@@ -262,7 +262,7 @@ function Timeline() {
         itemType: "dropdown",
         tooltip: "Week Format",
         propertyName: "setWeekFormat",
-        selectedOption: weekFormatToLabel[weekFormat] ?? weekFormat,
+        selectedOption: weekFormat,
         options: ["SUN_TO_SAT", "MON_TO_SUN", "MON_TO_FRI"].map((format) => ({
           option: format,
           label: weekFormatToLabel[format],
@@ -334,9 +334,17 @@ function Timeline() {
       }
     };
   });
+
+  // Clamp to UTC since getMonthAndWeeks cares only about UTC dates.
+  const fromUTC = new Date(
+    Date.UTC(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate())
+  );
+  const toUTC = new Date(
+    Date.UTC(toDate.getFullYear(), toDate.getMonth(), toDate.getDate())
+  );
   const [months, weeks] = getMonthAndWeeks(
-    fromDate,
-    toDate,
+    fromUTC,
+    toUTC,
     dateFormat,
     weekFormat
   );

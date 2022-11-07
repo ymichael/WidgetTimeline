@@ -35,10 +35,10 @@ function App() {
 
     const winAny = window as any;
     if (winAny.defaultDateFrom) {
-      fromPicker.setDate(winAny.defaultDateFrom);
+      fromPicker.setDate(new Date(winAny.defaultDateFrom));
     }
     if (winAny.defaultDateTo) {
-      toPicker.setDate(winAny.defaultDateTo);
+      toPicker.setDate(new Date(winAny.defaultDateTo));
     }
     if (containerEl.current) {
       containerEl.current.appendChild(fromPicker.el);
