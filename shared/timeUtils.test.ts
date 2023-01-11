@@ -50,6 +50,51 @@ test("same month", () => {
   ]);
 });
 
+test("multi-month bug", () => {
+  const fromDate = new Date(
+    "Sat Mar 11 2023 00:00:00 GMT-0800 (Pacific Standard Time)"
+  );
+  const toDate = new Date(
+    "Wed Mar 29 2023 00:00:00 GMT-0700 (Pacific Daylight Time)"
+  );
+  const fromUTC = new Date(
+    Date.UTC(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate())
+  );
+  const toUTC = new Date(
+    Date.UTC(toDate.getFullYear(), toDate.getMonth(), toDate.getDate())
+  );
+  expect(getMonthAndWeeks(fromUTC, toUTC)).toEqual([
+    [
+      {
+        monthIdx: 2,
+        numDays: 19,
+      },
+    ],
+    [
+      {
+        fromStr: "03/11",
+        numDays: 1,
+        toStr: "03/11",
+      },
+      {
+        fromStr: "03/12",
+        numDays: 7,
+        toStr: "03/18",
+      },
+      {
+        fromStr: "03/19",
+        numDays: 7,
+        toStr: "03/25",
+      },
+      {
+        fromStr: "03/26",
+        numDays: 4,
+        toStr: "03/29",
+      },
+    ],
+  ]);
+});
+
 test("multi-month", () => {
   expect(
     getMonthAndWeeks(new Date("2021-05-29"), new Date("2021-06-02"))
