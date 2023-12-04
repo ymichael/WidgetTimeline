@@ -21,6 +21,7 @@ const {
 type TTheme = {
   MONTH_FILL: string;
   WEEK_FILL: string;
+  TEXT_FILL?: string;
 };
 
 type TSize = {
@@ -59,7 +60,8 @@ const SIZE_MAP: Record<string, TSize> = {
   },
 };
 
-const THEMES: Record<string, TTheme> = {
+const OLD_THEMES = {
+  Purple: { MONTH_FILL: "#9747ff", WEEK_FILL: "#eadaff" },
   Orange: { MONTH_FILL: "#FAAB13", WEEK_FILL: "#FFEDCA" },
   Pink: { MONTH_FILL: "#FF70F9", WEEK_FILL: "#FFBBFC" },
   Red: { MONTH_FILL: "#FF4747", WEEK_FILL: "#FDC5C5" },
@@ -68,9 +70,64 @@ const THEMES: Record<string, TTheme> = {
   Olive: { MONTH_FILL: "#00700B", WEEK_FILL: "#98D69E" },
   Blue: { MONTH_FILL: "#3683C9", WEEK_FILL: "#D1E5F8" },
   Navy: { MONTH_FILL: "#0012B8", WEEK_FILL: "#A0A7E4" },
-  Purple: { MONTH_FILL: "#9747ff", WEEK_FILL: "#eadaff" },
   Black: { MONTH_FILL: "#2A2A2A", WEEK_FILL: "#CCCCCC" },
-};
+} as const;
+
+const UPDATED_THEMES = {
+  Black: { MONTH_FILL: "#000000", WEEK_FILL: "#D9D9D9" },
+  Grey: { MONTH_FILL: "#757575", WEEK_FILL: "#E6E6E6" },
+  Red: { MONTH_FILL: "#F24822", WEEK_FILL: "#FFE2E0" },
+  Orange: { MONTH_FILL: "#FFA629", WEEK_FILL: "#FFE0C2", TEXT_FILL: "#000" },
+  Yellow: { MONTH_FILL: "#FFCD29", WEEK_FILL: "#FFF1C2", TEXT_FILL: "#000" },
+  Green: { MONTH_FILL: "#14AE5C", WEEK_FILL: "#CFF7D3" },
+  Blue: { MONTH_FILL: "#0D99FF", WEEK_FILL: "#E5F4FF" },
+  Violet: { MONTH_FILL: "#9747FF", WEEK_FILL: "#F1E5FF" },
+  White: { MONTH_FILL: "#E6E6E6", WEEK_FILL: "#FFFFFF", TEXT_FILL: "#000" },
+  LightGrey: { MONTH_FILL: "#D9D9D9", WEEK_FILL: "#F5F5F5", TEXT_FILL: "#000" },
+  LightRed: { MONTH_FILL: "#FFC7C2", WEEK_FILL: "#FFF5F5", TEXT_FILL: "#000" },
+  LightOrange: { MONTH_FILL: "#FCD19C", WEEK_FILL: "#FFF4E5", TEXT_FILL: "#000" },
+  LightYellow: { MONTH_FILL: "#FFE8A3", WEEK_FILL: "#FFFBEB", TEXT_FILL: "#000" },
+  LightGreen: { MONTH_FILL: "#AFF4C6", WEEK_FILL: "#EBFFEE", TEXT_FILL: "#000" },
+  LightBlue: { MONTH_FILL: "#BDE3FF", WEEK_FILL: "#F2F9FF", TEXT_FILL: "#000" },
+  LightViolet: { MONTH_FILL: "#E4CCFF", WEEK_FILL: "#F9F5FF", TEXT_FILL: "#000" },
+  Teal: { MONTH_FILL: "#29D3A0", WEEK_FILL: "#B9FFEA" },
+  Navy: { MONTH_FILL: "#0012B8", WEEK_FILL: "#A0A7E4" },
+  Olive: { MONTH_FILL: "#00700B", WEEK_FILL: "#98D69E" },
+  Red2: { MONTH_FILL: "#FF4747", WEEK_FILL: "#FDC5C5" },
+} as const;
+
+function getClosestTheme(theme?: TTheme): TTheme {
+  if (theme) {
+    for (const v of Object.values(UPDATED_THEMES)) {
+      if (v.MONTH_FILL === theme.MONTH_FILL) {
+        return v;
+      }
+    }
+    switch (theme.MONTH_FILL) {
+      case OLD_THEMES.Purple["MONTH_FILL"]:
+        return UPDATED_THEMES.Violet;
+      case OLD_THEMES.Orange["MONTH_FILL"]:
+        return UPDATED_THEMES.Orange;
+      case OLD_THEMES.Pink["MONTH_FILL"]:
+        return UPDATED_THEMES.LightRed;
+      case OLD_THEMES.Red["MONTH_FILL"]:
+        return UPDATED_THEMES.Red;
+      case OLD_THEMES.Teal["MONTH_FILL"]:
+        return UPDATED_THEMES.Green;
+      case OLD_THEMES.Green["MONTH_FILL"]:
+        return UPDATED_THEMES.Green;
+      case OLD_THEMES.Olive["MONTH_FILL"]:
+        return UPDATED_THEMES.Green;
+      case OLD_THEMES.Blue["MONTH_FILL"]:
+        return UPDATED_THEMES.LightBlue;
+      case OLD_THEMES.Navy["MONTH_FILL"]:
+        return UPDATED_THEMES.Blue;
+      case OLD_THEMES.Black["MONTH_FILL"]:
+        return UPDATED_THEMES.Black;
+    }
+  }
+  return UPDATED_THEMES.Violet;
+}
 
 const MONTH_IDX_TO_NAME = [
   "January",
@@ -126,9 +183,9 @@ function Month({
         fill={theme.MONTH_FILL}
       >
         <Text
-          fill="#FFF"
           fontFamily="Inter"
           fontSize={large ? size.FONT_SIZE_MONTH * 2 : size.FONT_SIZE_MONTH}
+          fill={theme.TEXT_FILL ?? "#FFF"}
           fontWeight={500}
         >
           {label}
@@ -190,7 +247,8 @@ nextMonth.setMonth(today.getMonth() + 1);
 const dateTrunc = (x) => x.split(" ").slice(1, 4).join(" ");
 
 function Timeline() {
-  const [theme, setTheme] = useSyncedState<TTheme>("theme", THEMES["Purple"]);
+  const [themeRaw, setTheme] = useSyncedState<TTheme>("theme", UPDATED_THEMES.Violet);
+  const theme = getClosestTheme(themeRaw)
   const [dateFormat, setDateFormat] = useSyncedState<TDateFormat>(
     "dateFormat",
     "MM/DD"
@@ -232,7 +290,7 @@ function Timeline() {
         tooltip: "Theme",
         propertyName: "setTheme",
         selectedOption: theme.MONTH_FILL,
-        options: Object.entries(THEMES).map(([k, v]) => {
+        options: Object.entries(UPDATED_THEMES).map(([k, v]) => {
           return { option: v.MONTH_FILL, tooltip: k };
         }),
       },
@@ -304,7 +362,7 @@ function Timeline() {
       } else if (propertyName === "toggleShowWeeks") {
         setShowWeeks(!showWeeks);
       } else if (propertyName === "setTheme") {
-        const selectedTheme = Object.values(THEMES).find((v) => {
+        const selectedTheme = Object.values(UPDATED_THEMES).find((v) => {
           return v.MONTH_FILL === propertyValue;
         });
         if (selectedTheme) {
