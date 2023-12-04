@@ -79,21 +79,24 @@ const UPDATED_THEMES = {
   Red: { MONTH_FILL: "#F24822", WEEK_FILL: "#FFE2E0" },
   Orange: { MONTH_FILL: "#FFA629", WEEK_FILL: "#FFE0C2", TEXT_FILL: "#000" },
   Yellow: { MONTH_FILL: "#FFCD29", WEEK_FILL: "#FFF1C2", TEXT_FILL: "#000" },
+
+  "Light Grey": { MONTH_FILL: "#D9D9D9", WEEK_FILL: "#F5F5F5", TEXT_FILL: "#000" },
+  White: { MONTH_FILL: "#E6E6E6", WEEK_FILL: "#FFFFFF", TEXT_FILL: "#000" },
+  "Light Red": { MONTH_FILL: "#FFC7C2", WEEK_FILL: "#FFF5F5", TEXT_FILL: "#000" },
+  "Light Orange": { MONTH_FILL: "#FCD19C", WEEK_FILL: "#FFF4E5", TEXT_FILL: "#000" },
+  "Light Yellow": { MONTH_FILL: "#FFE8A3", WEEK_FILL: "#FFFBEB", TEXT_FILL: "#000" },
+
   Green: { MONTH_FILL: "#14AE5C", WEEK_FILL: "#CFF7D3" },
+  Teal: { MONTH_FILL: "#00A2C2", WEEK_FILL: "#B6ECF7" },
   Blue: { MONTH_FILL: "#0D99FF", WEEK_FILL: "#E5F4FF" },
   Violet: { MONTH_FILL: "#9747FF", WEEK_FILL: "#F1E5FF" },
-  White: { MONTH_FILL: "#E6E6E6", WEEK_FILL: "#FFFFFF", TEXT_FILL: "#000" },
-  LightGrey: { MONTH_FILL: "#D9D9D9", WEEK_FILL: "#F5F5F5", TEXT_FILL: "#000" },
-  LightRed: { MONTH_FILL: "#FFC7C2", WEEK_FILL: "#FFF5F5", TEXT_FILL: "#000" },
-  LightOrange: { MONTH_FILL: "#FCD19C", WEEK_FILL: "#FFF4E5", TEXT_FILL: "#000" },
-  LightYellow: { MONTH_FILL: "#FFE8A3", WEEK_FILL: "#FFFBEB", TEXT_FILL: "#000" },
-  LightGreen: { MONTH_FILL: "#AFF4C6", WEEK_FILL: "#EBFFEE", TEXT_FILL: "#000" },
-  LightBlue: { MONTH_FILL: "#BDE3FF", WEEK_FILL: "#F2F9FF", TEXT_FILL: "#000" },
-  LightViolet: { MONTH_FILL: "#E4CCFF", WEEK_FILL: "#F9F5FF", TEXT_FILL: "#000" },
-  Teal: { MONTH_FILL: "#29D3A0", WEEK_FILL: "#B9FFEA" },
-  Navy: { MONTH_FILL: "#0012B8", WEEK_FILL: "#A0A7E4" },
-  Olive: { MONTH_FILL: "#00700B", WEEK_FILL: "#98D69E" },
-  Red2: { MONTH_FILL: "#FF4747", WEEK_FILL: "#FDC5C5" },
+  Pink: { MONTH_FILL: "#FF24BD", WEEK_FILL: "#FFE0FC" },
+
+  "Light Green": { MONTH_FILL: "#AFF4C6", WEEK_FILL: "#EBFFEE", TEXT_FILL: "#000" },
+  "Light Teal": { MONTH_FILL: "#B6ECF7", WEEK_FILL: "#E3F4F7", TEXT_FILL: "#000" },
+  "Light Blue": { MONTH_FILL: "#BDE3FF", WEEK_FILL: "#F2F9FF", TEXT_FILL: "#000" },
+  "Light Violet": { MONTH_FILL: "#E4CCFF", WEEK_FILL: "#F9F5FF", TEXT_FILL: "#000" },
+  "Light Pink": { MONTH_FILL: "#FFBDF2", WEEK_FILL: "#FFF0FE", TEXT_FILL: "#000" },
 } as const;
 
 function getClosestTheme(theme?: TTheme): TTheme {
@@ -109,7 +112,7 @@ function getClosestTheme(theme?: TTheme): TTheme {
       case OLD_THEMES.Orange["MONTH_FILL"]:
         return UPDATED_THEMES.Orange;
       case OLD_THEMES.Pink["MONTH_FILL"]:
-        return UPDATED_THEMES.LightRed;
+        return UPDATED_THEMES["Light Red"];
       case OLD_THEMES.Red["MONTH_FILL"]:
         return UPDATED_THEMES.Red;
       case OLD_THEMES.Teal["MONTH_FILL"]:
@@ -119,7 +122,7 @@ function getClosestTheme(theme?: TTheme): TTheme {
       case OLD_THEMES.Olive["MONTH_FILL"]:
         return UPDATED_THEMES.Green;
       case OLD_THEMES.Blue["MONTH_FILL"]:
-        return UPDATED_THEMES.LightBlue;
+        return UPDATED_THEMES["Light Blue"];
       case OLD_THEMES.Navy["MONTH_FILL"]:
         return UPDATED_THEMES.Blue;
       case OLD_THEMES.Black["MONTH_FILL"]:
