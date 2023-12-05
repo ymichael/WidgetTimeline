@@ -183,6 +183,7 @@ function Month({
         verticalAlignItems="center"
         padding={size.PADDING}
         cornerRadius={10}
+        stroke={{ r: 0, g: 0, b: 0, a: 0.1 }}
         fill={theme.MONTH_FILL}
       >
         <Text
@@ -222,6 +223,7 @@ function Week({
     >
       <AutoLayout
         width="fill-parent"
+        stroke={{ r: 0, g: 0, b: 0, a: 0.1 }}
         fill={theme.WEEK_FILL}
         cornerRadius={10}
         padding={size.PADDING}
