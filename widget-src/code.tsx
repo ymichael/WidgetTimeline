@@ -273,6 +273,13 @@ function Timeline() {
 
   const widgetId = useWidgetNodeId();
 
+  useEffect(() => {
+  const node = figma.getNodeById(widgetId);
+    if (node && node.type === "WIDGET" && node.width !== currentWidth) {
+      setCurrentWidth(node.width);
+    }
+  })
+
   const showDatePicker = (): Promise<void> => {
     return new Promise(() => {
       figma.showUI(
@@ -391,6 +398,28 @@ function Timeline() {
     }
   );
 
+  useEffect(() => {
+    figma.ui.onmessage = (msg) => {
+      switch (msg.type) {
+        case "resize":
+          figma.ui.resize(msg.width, msg.height);
+          break;
+        case "from":
+          setFrom(msg.dateStr);
+          break;
+        case "to":
+          if (fromDate.getTime() > new Date(msg.dateStr).getTime()) {
+            figma.notify("Please choose an end date after the start date.", {
+              error: true,
+            });
+          } else {
+            setTo(msg.dateStr);
+          }
+          break;
+      }
+    };
+  });
+
   // Clamp to UTC since getMonthAndWeeks cares only about UTC dates.
   const fromUTC = new Date(
     Date.UTC(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate())
@@ -423,29 +452,6 @@ function Timeline() {
   if (totalDuration > 0) {  // Ensure no division by zero
     percentage = (elapsedDuration / totalDuration);
   }
-
-  useEffect(() => {
-    figma.ui.onmessage = (msg) => {
-      switch (msg.type) {
-        case "resize":
-          figma.ui.resize(msg.width, msg.height);
-          setCurrentWidth(msg.width);
-          break;
-        case "from":
-          setFrom(msg.dateStr);
-          break;
-        case "to":
-          if (fromDate.getTime() > new Date(msg.dateStr).getTime()) {
-            figma.notify("Please choose an end date after the start date.", {
-              error: true,
-            });
-          } else {
-            setTo(msg.dateStr);
-          }
-          break;
-      }
-    };
-  });
 
   const size = SIZE_MAP[sizeKey] || SIZE_MAP["small"];
   return (
