@@ -11,11 +11,10 @@ const {
   AutoLayout,
   Text,
   Frame,
-  Ellipse,
-  Image,
   useEffect,
   useSyncedState,
   usePropertyMenu,
+  useWidgetNodeId
 } = widget;
 
 type TTheme = {
@@ -266,9 +265,20 @@ function Timeline() {
   const [from, setFrom] = useSyncedState("from", today.toString());
   const [to, setTo] = useSyncedState("to", nextMonth.toString());
   const [showWeeks, setShowWeeks] = useSyncedState("showWeeks", true);
+  const [showCurrentDate, setShowCurrentDate] = useSyncedState("showCurrentDate", true);
+  const [currentWidth, setCurrentWidth] = useSyncedState("currentWidth", 0);
 
   const fromDate = new Date(from);
   const toDate = new Date(to);
+
+  const widgetId = useWidgetNodeId();
+
+  useEffect(() => {
+  const node = figma.getNodeById(widgetId);
+    if (node && node.type === "WIDGET" && node.width !== currentWidth) {
+      setCurrentWidth(node.width);
+    }
+  })
 
   const showDatePicker = (): Promise<void> => {
     return new Promise(() => {
@@ -340,6 +350,12 @@ function Timeline() {
       { itemType: "separator" },
       {
         itemType: "action",
+        tooltip: showCurrentDate ? "Hide Today" : "Show Today",
+        propertyName: "toggleShowCurrentDate",
+      },
+      { itemType: "separator" },
+      {
+        itemType: "action",
         tooltip: `${dateTrunc(from)} - ${dateTrunc(to)}`,
         propertyName: "setRange",
       },
@@ -366,6 +382,11 @@ function Timeline() {
         }
       } else if (propertyName === "toggleShowWeeks") {
         setShowWeeks(!showWeeks);
+      } else if (propertyName === "toggleShowCurrentDate") {
+        setShowCurrentDate(!showCurrentDate);
+        const widgetNode = figma.getNodeById(widgetId) as WidgetNode;
+        setCurrentWidth(widgetNode.width);
+        setShowCurrentDate(!showCurrentDate)
       } else if (propertyName === "setTheme") {
         const selectedTheme = Object.values(UPDATED_THEMES).find((v) => {
           return v.MONTH_FILL === propertyValue;
@@ -376,6 +397,7 @@ function Timeline() {
       }
     }
   );
+
   useEffect(() => {
     figma.ui.onmessage = (msg) => {
       switch (msg.type) {
@@ -405,12 +427,32 @@ function Timeline() {
   const toUTC = new Date(
     Date.UTC(toDate.getFullYear(), toDate.getMonth(), toDate.getDate())
   );
+
+  const nowUTC = new Date(Date.UTC(
+    new Date().getFullYear(),
+    new Date().getMonth(),
+    new Date().getDate()
+  ));
+
   const [months, weeks] = getMonthAndWeeks(
     fromUTC,
     toUTC,
     dateFormat,
     weekFormat
   );
+
+  // Calculate the total duration from fromDate to toDate
+  const totalDuration = Number(toUTC) - Number(fromUTC);
+
+  // Calculate the duration from fromDate to the current date
+  const elapsedDuration = Number(nowUTC) - Number(fromUTC);
+
+  // Calculate the percentage of time elapsed
+  let percentage = 0;
+  if (totalDuration > 0) {  // Ensure no division by zero
+    percentage = (elapsedDuration / totalDuration);
+  }
+
   const size = SIZE_MAP[sizeKey] || SIZE_MAP["small"];
   return (
     <AutoLayout direction="vertical" spacing={size.SPACING}>
@@ -428,6 +470,19 @@ function Timeline() {
           );
         })}
       </AutoLayout>
+      {showCurrentDate && (
+        <Frame positioning="absolute" x={currentWidth * percentage} width="fill-parent" height={size.FONT_SIZE_WEEK}>
+          <Text
+            fontFamily="Inter"
+            fontSize={size.FONT_SIZE_WEEK - 10}
+            fill={theme.MONTH_FILL ?? "#FFF"}
+            fontWeight={500}
+          >
+          ⬇
+          </Text>
+        </Frame>)
+      }
+
       {showWeeks && (
         <AutoLayout direction="horizontal" padding={0} spacing={0}>
           {weeks.map((week, idx) => {
